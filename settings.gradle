@@ -1,0 +1,3 @@
+include ':CSocket'
+include ':app'
+rootProject.name = "Socket Library"
