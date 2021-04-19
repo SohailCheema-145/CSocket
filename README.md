@@ -11,7 +11,7 @@ Here's an easy solution for 2 way communication between android devices.
 
    **Client: **
    
-    On client side create a client socket as follows. Remember to change ip address, port and identifier accordingly.
+   On client side create a client socket as follows. Remember to change ip address, port and identifier accordingly.
     
     import androidx.appcompat.app.AppCompatActivity;
     import android.os.Bundle;
@@ -56,7 +56,7 @@ Here's an easy solution for 2 way communication between android devices.
 
    **Server: **
     
-    On Server side create a client socket on specific port (range from 1024 - 65535) and start a server as follows.
+   On Server side create a client socket on specific port (range from 1024 - 65535) and start a server as follows.
     
     import androidx.appcompat.app.AppCompatActivity;
     import android.os.Bundle;
