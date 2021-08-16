@@ -56,11 +56,7 @@ public class CSocket {
         this.context = context;
         this.cInterface = cInterface;
         this.uniqueIdentifier = uniqueIdentifier;
-        if (context != null) {
-            this.clientPort = context.getSharedPreferences(preferencesName, MODE_PRIVATE).getInt(clientPortString, 9000);
-        } else {
-            this.clientPort = 9000;
-        }
+        this.clientPort = context.getSharedPreferences(preferencesName, MODE_PRIVATE).getInt(clientPortString, 1024);
     }
 
     public void setServerConfig(String serverIp, int serverPort) {
@@ -275,9 +271,9 @@ public class CSocket {
                     processClientData(dataString, printWriter);
                     printWriter.write("ok");
                     printWriter.flush();
-//                    printWriter.close();
+                    printWriter.close();
                     bufferedReader.close();
-//                    clientSocket.close();
+                    clientSocket.close();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -306,12 +302,15 @@ public class CSocket {
     /* ********************************************************* Helpers ************************************************* */
     /* ********************************************************* Helpers ************************************************* */
     /* ********************************************************* Helpers ************************************************* */
-    private String convertToString(Object myObj) {
+    private String convertToString(DataPacket myObj) {
         Gson gson = new Gson();
         String data = gson.toJson(myObj);
         try {
             data = new String(data.getBytes(), "UTF-8");
-            data = "" + addForwardSlash(data);
+            data = "{\"clientAddress\": \"" + myObj.getClientAddress() + "\",\"clientData\": \"" + addForwardSlash(data)
+                    + "\",\"clientPort\": \"" + myObj.getClientPort()
+                    + "\",\"uniqueIdentifier\": \"" + myObj.getUniqueIdentifier()
+                    + "\"}";
             Log.e(TAG, "convertToString: " + data);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -395,6 +394,14 @@ public class CSocket {
             this.clientAddress = clientAddress;
             this.clientPort = clientPort;
             this.clientData = clientData;
+            this.uniqueIdentifier = uniqueIdentifier;
+        }
+
+        public String getUniqueIdentifier() {
+            return uniqueIdentifier;
+        }
+
+        public void setUniqueIdentifier(String uniqueIdentifier) {
             this.uniqueIdentifier = uniqueIdentifier;
         }
 
