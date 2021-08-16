@@ -87,12 +87,12 @@ public class CSocket {
     //method to send data to server
     public void sendData(String data) {
         DataPacket dataPacket = new DataPacket(getLocalIpAddress(), clientPort, data, uniqueIdentifier);
-        sendDataToServer(convertToString(dataPacket));
+        sendDataToServer(new Gson().toJson(dataPacket));
     }
 
     public void sendData(Object data) {
-        DataPacket dataPacket = new DataPacket(getLocalIpAddress(), clientPort, data, uniqueIdentifier);
-        sendDataToServer(convertToString(dataPacket));
+        DataPacket dataPacket = new DataPacket(getLocalIpAddress(), clientPort, new Gson().toJson(data), uniqueIdentifier);
+        sendDataToServer(new Gson().toJson(dataPacket));
     }
 
     private void sendDataToServer(String data) {
@@ -179,7 +179,6 @@ public class CSocket {
     private void sendDataToUI(String data) {
 
         Gson gson = new Gson();
-        data = data.replace("\\", "");
         DataPacket dataPacket = gson.fromJson(data, DataPacket.class);
 
         //convert object string to object to get original data
@@ -237,7 +236,7 @@ public class CSocket {
                 }
             } catch (Exception e) {
                 isStopped = true;
-                Log.e(TAG, " ServerAsyncTask => Cannot start server on port = " + serverPort + ". Reason = " + e);
+                Log.e(TAG, " ServerAsyncTask => Cannot start server on port = " + clientPort + ". Reason = " + e);
             }
             return null;
         }
@@ -284,7 +283,7 @@ public class CSocket {
 
             try {
                 Gson gson = new Gson();
-                dataString = dataString.replace("\\", "");
+//                dataString = dataString.replace("\\", "");
                 DataPacket dataPacket = gson.fromJson(dataString, DataPacket.class);
 
                 if (cInterface != null)
@@ -307,7 +306,8 @@ public class CSocket {
         String data = gson.toJson(myObj);
         try {
             data = new String(data.getBytes(), "UTF-8");
-            data = "{\"clientAddress\": \"" + myObj.getClientAddress() + "\",\"clientData\": \"" + addForwardSlash(data)
+//            data = "{\"clientAddress\": \"" + myObj.getClientAddress() + "\",\"clientData\": \"" + addForwardSlash(data)
+            data = "{\"clientAddress\": \"" + myObj.getClientAddress() + "\",\"clientData\": \"" + myObj.getClientData()
                     + "\",\"clientPort\": \"" + myObj.getClientPort()
                     + "\",\"uniqueIdentifier\": \"" + myObj.getUniqueIdentifier()
                     + "\"}";
@@ -317,31 +317,6 @@ public class CSocket {
             return null;
         }
         return data;
-    }
-
-    private String addForwardSlash(String data) {
-        byte[] bytes = data.getBytes();
-        byte[] bytes1 = new byte[500];
-
-        int j = 0;
-        for (int i = 0; i < bytes.length; i++) {
-            byte b = bytes[i];
-            if (b == '"') {
-                bytes1[j] = '\\';
-                j = j + 1;
-            }
-            bytes1[j] = bytes[i];
-            j = j + 1;
-        }
-        for (int i = j; i < 500; i++) {
-            bytes1[i] = '?';
-        }
-        try {
-            return new String(bytes1, "UTF-8").replace("?", "");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return "";
     }
 
     //get client ip against identifier
@@ -385,12 +360,12 @@ public class CSocket {
         private int clientPort;
         @SerializedName("clientData")
         @Expose
-        private Object clientData;
+        private String clientData;
         @SerializedName("uniqueIdentifier")
         @Expose
         private String uniqueIdentifier;
 
-        public DataPacket(String clientAddress, int clientPort, Object clientData, String uniqueIdentifier) {
+        public DataPacket(String clientAddress, int clientPort, String clientData, String uniqueIdentifier) {
             this.clientAddress = clientAddress;
             this.clientPort = clientPort;
             this.clientData = clientData;
@@ -425,7 +400,7 @@ public class CSocket {
             return clientData;
         }
 
-        public void setClientData(Object clientData) {
+        public void setClientData(String clientData) {
             this.clientData = clientData;
         }
     }
