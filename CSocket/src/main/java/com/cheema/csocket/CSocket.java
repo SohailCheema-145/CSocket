@@ -153,8 +153,10 @@ public class CSocket {
                         if (server != null && bufferedReader != null) {
                             final String message = bufferedReader.readLine();
                             Log.e(TAG, "Response from server = " + message);
-                            if (cInterface != null && message != null)
-                                cInterface.onDataReceived(message, null);
+                            if (cInterface != null && message != null) {
+                                DataPacket dataPacket = new Gson().fromJson(message, DataPacket.class);
+                                cInterface.onDataReceived(dataPacket.getClientData().toString(), null);
+                            }
                             bufferedReader.close();
                             server.close();
                             bufferedReader = null;
