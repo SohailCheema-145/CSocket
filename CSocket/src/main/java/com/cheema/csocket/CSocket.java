@@ -154,8 +154,7 @@ public class CSocket {
                             final String message = bufferedReader.readLine();
                             Log.e(TAG, "Response from server = " + message);
                             if (cInterface != null && message != null) {
-                                DataPacket dataPacket = new Gson().fromJson(message, DataPacket.class);
-                                cInterface.onDataReceived(dataPacket.getClientData().toString(), null);
+                                cInterface.onDataReceived(message, null);
                             }
                             bufferedReader.close();
                             server.close();
@@ -245,8 +244,19 @@ public class CSocket {
     }
 
     public void sendDataToClient(String data, String uniqueIdentifier) {
-        DataPacket dataPacket = new DataPacket(getLocalIpAddress(), 9000, data, "server");
-        new SenderAsyncTask(convertToString(dataPacket), getClientIp(uniqueIdentifier), 9000).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        String completeClientIp = getClientIp(uniqueIdentifier);
+        if (completeClientIp != null) {
+            String[] array = completeClientIp.split(":");
+            if (array.length == 2) {
+                String ip = array[0];
+                int port = Integer.parseInt(array[1]);
+                new SenderAsyncTask(data, ip, port).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                Log.e(TAG, "sendDataToClient => client not found");
+            }
+        } else {
+            Log.e(TAG, "sendDataToClient => client not found");
+        }
     }
 
     //class to receive data sent from sever
@@ -282,16 +292,14 @@ public class CSocket {
         }
 
         private void processClientData(String dataString, PrintWriter printWriter) {
-
             try {
                 Gson gson = new Gson();
-//                dataString = dataString.replace("\\", "");
                 DataPacket dataPacket = gson.fromJson(dataString, DataPacket.class);
 
                 if (cInterface != null)
                     cInterface.onDataReceived(dataPacket.getClientData().toString(), printWriter);
 
-                Paper.book(devicesTable).write(dataPacket.uniqueIdentifier, dataPacket.clientAddress);
+                Paper.book(devicesTable).write(dataPacket.uniqueIdentifier, dataPacket.clientAddress + ":" + dataPacket.getClientPort());
             } catch (Exception ex) {
                 if (cInterface != null)
                     cInterface.onDataReceived(dataString, printWriter);
@@ -323,19 +331,7 @@ public class CSocket {
 
     //get client ip against identifier
     private String getClientIp(String uniqueIdentifier) {
-        String ip = null;
-
-        List<String> arrayList = Paper.book(devicesTable).getAllKeys();
-        if (arrayList != null) {
-            for (int i = 0; i < arrayList.size(); i++) {
-                if (arrayList.get(i).equals(uniqueIdentifier)) {
-                    ip = Paper.book(devicesTable).read(arrayList.get(i));
-                    break;
-                }
-            }
-        }
-
-        return ip;
+        return Paper.book(devicesTable).read(uniqueIdentifier);
     }
 
     //get device ip
