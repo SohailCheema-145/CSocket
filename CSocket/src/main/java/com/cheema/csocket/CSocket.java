@@ -183,8 +183,11 @@ public class CSocket {
         DataPacket dataPacket = gson.fromJson(data, DataPacket.class);
 
         //convert object string to object to get original data
-        if (cInterface != null)
+        if (cInterface != null && dataPacket != null && dataPacket.getClientData() != null)
             cInterface.onDataSent(dataPacket.getClientData().toString());
+        else {
+            cInterface.onDataSent(data);
+        }
     }
 
 
