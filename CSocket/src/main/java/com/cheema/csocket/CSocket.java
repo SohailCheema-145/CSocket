@@ -64,6 +64,14 @@ public class CSocket {
         this.serverPort = serverPort;
     }
 
+    public String getUniqueIdentifier() {
+        return uniqueIdentifier;
+    }
+
+    public void setUniqueIdentifier(String uniqueIdentifier) {
+        this.uniqueIdentifier = uniqueIdentifier;
+    }
+
     public String getServerIp() {
         return serverIp;
     }
