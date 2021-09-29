@@ -144,7 +144,7 @@ public class CSocket {
                 String message = "Connection failed with server";
                 Log.e(TAG, "SenderAsyncTask => run => " + message);
                 if (cInterface != null)
-                    cInterface.onFailure(message);
+                    cInterface.onFailure(data, message);
                 Log.e(TAG, message);
                 e.printStackTrace();
             }
