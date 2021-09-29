@@ -7,5 +7,5 @@ public interface CInterface {
 
     void onDataReceived(String data, PrintWriter printWriter);
 
-    void onFailure(String error);
+    void onFailure(String data, String error);
 }
